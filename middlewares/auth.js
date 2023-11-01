@@ -1,32 +1,19 @@
 import Jwt from 'jsonwebtoken';
-import User from '../models/user.js';
+import { config } from 'dotenv';
+config();
 
 
-export const auth=(req, res) => {
-	const { token }=req.cookies;
-	console.log(token)
-	if (token) {
-		Jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-			if (err) {
-				return res.status(401).json({
-					success: false,
-					message: "Invalid Token"
-				})
-			}
-			else {
-				User.findById(decoded.id, (err, user) => {
-					if (err) {
-						return res.status(401).json({
-							success: false,
-							message: "Invalid Token"
-						})
-					}
-					else {
-						req.user=user;
-						next();
-					}
-				})
-			}
-		})
+export const auth=async (req, res, next) => {
+	const { headers }=req;
+	const token=headers.authorization? headers.authorization.split(' ')[1]:null;
+	if (!token) {
+		return res.status(400).json({ message: "Please provide bearer token" });
 	}
-}
+	try {
+		const decoded=Jwt.verify(token, process.env.JWT_SECRET);
+		req.user=decoded;
+		next();
+	} catch (error) {
+		return res.status(400).json({ message: "Invalid token" });
+	}
+};
