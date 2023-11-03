@@ -1,6 +1,8 @@
 import User from "../models/user.js";
 import asyncHandler from "express-async-handler";
 import { sendToken } from "../utils/sendToken.js";
+import sendEmail from "../utils/sendMail.js"
+import Course from "../models/course.js";
 
 
 const code=Math.floor(1000+Math.random()*15*60*1000);
@@ -170,15 +172,11 @@ export default {
 			res.status(200).json({ message: "Password reset code sent to your email." });
 
 		} catch (error) {
-
+			return res.status(400).json({ error: error.message });
 		}
 
 
 	}),
-
-
-
-
 	resetPassword: asyncHandler(async (req, res) => {
 		const { code, password }=req.body;
 		try {
@@ -198,6 +196,60 @@ export default {
 		} catch (error) {
 			return res.status(400).json({ error: error.message });
 		}
-
 	}),
+	addToPlaylist: asyncHandler(async (req, res) => {
+		const courseId=req.params.id;
+		const userId=req.user._id;
+		try {
+			const user=await User.findById(userId)
+			if (!user) {
+				return res.status(400).json({ message: "User not found" });
+			}
+			const course=await Course.findById(courseId);
+			if (!course) {
+				return res.status(400).json({ message: "Course not found" });
+			}
+
+			user.playlist.push({
+				course: course._id,
+				poster: course.poster.url,
+			})
+			await user.save();
+			return res.status(200).json({
+				message: "Playlist added successfully"
+			})
+
+		} catch (error) {
+			res.status(500).json({ error: error.message })
+		}
+	}),
+
+	removeFromPlaylist: asyncHandler(async (req, res) => {
+		const courseId=req.params.id;
+		const userId=req.user._id;
+		try {
+			const user=await User.findById(userId)
+			if (!user) {
+				return res.status(400).json({ message: "User not found" });
+			}
+			const course=await Course.findById(courseId);
+			if (!course) {
+				return res.status(400).json({ message: "Course not found" });
+			}
+			const courseIndex=user.playlist.findIndex(
+				(item) => item.course.toString()===course._id.toString()
+			);
+			if (courseIndex===-1) {
+				return res.status(400).json({ message: "Course not found in the playlist" });
+			}
+			user.playlist.splice(courseIndex, 1);
+
+			await user.save();
+			return res.status(200).json({
+				message: "Course removed from the playlist successfully",
+			});
+		} catch (error) {
+			res.status(500).json({ error: error.message })
+		}
+	})
 };
