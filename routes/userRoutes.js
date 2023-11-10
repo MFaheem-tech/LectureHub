@@ -1,6 +1,8 @@
 import { Router } from "express";
 import userController from "../controllers/userController.js";
 import { auth } from "../middlewares/auth.js";
+import { Admin, User } from "../middlewares/role.js";
+
 
 
 const router=Router();
@@ -15,4 +17,5 @@ router.post('/forgot-password', auth, userController.forgotPassword);
 router.post('/reset-password', auth, userController.resetPassword);
 router.post('/add-to-playlist/:id', auth, userController.addToPlaylist);
 router.post('/remove-from-playlist/:id', auth, userController.removeFromPlaylist);
+router.post('/file', userController.uploadSingleImageHandler)
 export default router;

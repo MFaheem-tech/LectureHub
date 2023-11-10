@@ -4,5 +4,11 @@ const router=Router();
 
 router.get('/get-all-courses', courseController.getAllCourses);
 router.post('/add-course', courseController.createCourse);
+router.get('/course-lectures/:id', courseController.getCourseLectures);
+router.post('/lecture/:courseId', courseController.addCourseLecture);
+router.delete('/remove-course/:courseId', courseController.removeCourse);
+router.delete('/lecture/:lectureId/course/:courseId', courseController.deleteLecture);
+
+
 
 export default router;

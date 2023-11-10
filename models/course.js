@@ -19,15 +19,8 @@ const userSchema=new Schema({
 			required: [true, "Please enter lecture description"]
 		},
 		video: {
-			publicId: {
-				type: String,
-				required: true
-			},
-			url: {
-				type: String,
-				required: true
-			}
-		}
+			type: String,
+		},
 	}
 	],
 	poster: {

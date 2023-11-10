@@ -251,5 +251,53 @@ export default {
 		} catch (error) {
 			res.status(500).json({ error: error.message })
 		}
-	})
+	}),
+	uploadSingleImageHandler: asyncHandler(async (req, res) => {
+		try {
+			await uploadSingleImage(req, res);
+
+			if (!req.file) {
+				throw new Error("No image selected");
+			}
+
+			const imageBuffer=req.file.buffer;
+
+			const uploadStream=cloudinaryV2.uploader.upload_stream(
+				{
+					resource_type: "auto",
+					type: "authenticated",
+					use_filename: true,
+				},
+				(error, result) => {
+					if (error) {
+						console.error(error);
+						throw new Error("Image upload to Cloudinary failed: "+error.message);
+					}
+
+					if (result&&result.secure_url) {
+						const imageUrl=result.secure_url;
+						res.json({
+							success: true,
+							message: "Image uploaded successfully",
+							image: imageUrl,
+						});
+					} else {
+						throw new Error("Image upload to Cloudinary failed: No secure_url in the result object");
+					}
+				}
+			);
+
+			const bufferStream=streamifier.createReadStream(imageBuffer);
+			bufferStream.pipe(uploadStream);
+		} catch (error) {
+			console.error(error);
+			res.status(500).json({
+				success: false,
+				message: "Image upload failed",
+				error: error.message,
+			});
+		}
+	}),
+
+
 };
