@@ -1,0 +1,178 @@
+openapi: 3.0.0
+info:
+  title: LECTURE HUB API's
+  version: 1.0.0
+  description: This is a sample APIS doc for the LectureHub app consisting of the ADMIN, TEACHER and USER End points
+
+servers:
+  - url: http://localhost:8000/api/v1
+tags:
+  - name: ADMIN
+    description: All endpoints about ADMIN
+  - name: USER
+    description: All endpoints about USER
+  - name: TEACHER
+    description: All endpoints about INSTRUCTOR
+
+paths:
+  /course/get-all-courses:
+    get:
+      tags:
+        - TEACHER
+      summary: Get all courses
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                success: true
+                courses: []
+  /course/add-course:
+    post:
+      tags:
+        - TEACHER
+      summary: Create a new course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              title: Course Title
+              description: Course Description
+              category: Course Category
+              createdBy: Course Creator Name
+      responses:
+        "201":
+          description: Course created successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Course Created
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              example:
+                success: false
+                message: Please fill all the fields
+
+  /course/course-lectures/{id}:
+    get:
+      tags:
+        - TEACHER
+      summary: Get lectures of a course
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: Course ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                success: true
+                lectures: []
+
+  /course/lecture/{courseId}:
+    post:
+      tags:
+        - TEACHER
+      summary: Add a new lecture to a course
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          description: Course ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              title: Lecture Title
+              description: Lecture Description
+              file: Video URL (optional)
+      responses:
+        "201":
+          description: Lecture added successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Lecture added successfully
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              example:
+                success: false
+                message: Course not found
+
+  /course/remove-course/{courseId}:
+    delete:
+      tags:
+        - TEACHER
+      summary: Remove a course
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          description: Course ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Course deleted successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Course deleted successfully
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              example:
+                success: false
+                message: Course not found
+
+  /course/lecture/{lectureId}/course/{courseId}:
+    delete:
+      tags:
+        - TEACHER
+      summary: Remove a lecture from a course
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          description: Course ID
+          schema:
+            type: string
+        - in: path
+          name: lectureId
+          required: true
+          description: Lecture ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lecture deleted successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Lecture deleted successfully
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              example:
+                success: false
+                message: Course not found

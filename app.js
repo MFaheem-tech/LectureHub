@@ -6,12 +6,29 @@ import { connectDb } from './config/db.js';
 import { config } from 'dotenv';
 config();
 
+
+// ####### Swagger
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
+
+const swaggerDocument=YAML.load("./swagger.yaml");
+
+const options={
+	customCss: ".swagger-ui .topbar { display: none }",
+	customSiteTitle: "LectureHub",
+};
+
 const app=express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(cookieParser());
+// ######   Serve swagger Ui
+app.use(
+	"/api-docs",
+	swaggerUi.serve,
+	swaggerUi.setup(swaggerDocument, options)
+);
 
 
 
