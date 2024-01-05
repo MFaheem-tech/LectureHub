@@ -271,7 +271,6 @@ export default {
 			const bufferStream=streamifier.createReadStream(imageBuffer);
 			bufferStream.pipe(uploadStream);
 		} catch (error) {
-			console.error(error);
 			res.status(500).json({
 				success: false,
 				message: "Image upload failed",

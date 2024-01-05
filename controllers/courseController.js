@@ -41,6 +41,44 @@ export default {
 		}
 	}),
 
+	updateCourse: asyncHandler(async (req, res) => {
+		const courseId=req.params.courseId;
+		const { title, description, category }=req.body;
+
+		try {
+			const course=await Course.findById(courseId);
+			if (!course) {
+				return res.status(404).json({ message: 'Course not found' });
+			}
+
+			if (title) course.title=title;
+			if (description) course.description=description;
+			if (category) course.category=category;
+
+			await course.save();
+
+			res.status(200).json({ success: true, message: 'Course updated successfully', course });
+		} catch (error) {
+			res.status(500).json({ message: error.message });
+		}
+	}),
+
+	deleteCourse: asyncHandler(async (req, res) => {
+		const courseId=req.params.courseId;
+
+		try {
+			const course=await Course.findById(courseId);
+			if (!course) {
+				return res.status(404).json({ message: 'Course not found' });
+			}
+
+			await course.remove();
+
+			res.status(200).json({ success: true, message: 'Course deleted successfully' });
+		} catch (error) {
+			res.status(500).json({ message: error.message });
+		}
+	}),
 
 	getCourseLectures: asyncHandler(async (req, res) => {
 		const courseId=req.params.id;
