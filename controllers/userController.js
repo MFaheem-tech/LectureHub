@@ -9,9 +9,9 @@ const code=Math.floor(1000+Math.random()*15*60*1000);
 
 export default {
 	register: asyncHandler(async (req, res) => {
-		const { name, email, password }=req.body;
+		const { name, email, password, profile }=req.body;
 		try {
-			// const file = req.file;
+
 			if (!name||!email||!password) {
 				return res.status(400).json({ message: "Please fill all fields" });
 			}
@@ -23,10 +23,7 @@ export default {
 				name,
 				email,
 				password,
-				avatar: {
-					publicId: "temp",
-					url: "temp",
-				},
+				profile,
 			});
 			sendToken(res, user, "User Registered Successfully", 200);
 
@@ -60,18 +57,6 @@ export default {
 
 	}),
 
-	logout: asyncHandler(async (req, res) => {
-		return res
-			.status(200)
-			.cookie("token", null, {
-				expires: new Date(Date.now()),
-			})
-			.json({
-				success: true,
-				message: "Logout Successfully",
-			});
-	}),
-
 	profile: asyncHandler(async (req, res) => {
 		const userId=req.user._id;
 		try {
@@ -89,31 +74,27 @@ export default {
 		}
 
 	}),
-	updateProfile: asyncHandler(
-		async (req, res) => {
-			const userId=req.user._id;
-			const { name, email }=req.body;
-			try {
-				if (!name||!email) {
-					return res.status(400).json({ message: "Please fill all fields" });
-				}
-				const user=await User.findById(userId);
-				if (!user) {
-					return res.status(400).json({ message: "User not found" });
-				}
-				if (name) user.name=name;
-				if (email) user.email=email;
-
-				await user.save();
-				return res.status(200).json({
-					user,
-					message: "Profile update successfully"
-				})
-
-			} catch (error) {
-				return res.status(500).json({ error: error.message })
+	updateProfile: asyncHandler(async (req, res) => {
+		const userId=req.user._id;
+		const { name, email }=req.body;
+		try {
+			const user=await User.findById(userId);
+			if (!user) {
+				return res.status(400).json({ message: "User not found" });
 			}
-		}),
+
+			if (name) user.name=name;
+			if (email) user.email=email;
+
+			await user.save();
+			return res.status(200).json({
+				user,
+				message: "Profile updated successfully"
+			});
+		} catch (error) {
+			return res.status(500).json({ error: error.message });
+		}
+	}),
 
 	changePassword: asyncHandler(async (req, res) => {
 		const userId=req.user._id;

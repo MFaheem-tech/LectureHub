@@ -4,7 +4,6 @@ import Jwt from "jsonwebtoken";
 import bcryptjs from 'bcryptjs'
 
 const userSchema=new Schema({
-
 	name: {
 		type: String,
 		required: [true, 'Please enter your name']
@@ -13,53 +12,48 @@ const userSchema=new Schema({
 		type: String,
 		required: [true, "Please enter your email"],
 		unique: true,
-		validate: validater.isEmail,
+		validate: {
+			validator: validater.isEmail,
+			message: "Please provide a valid email address"
+		}
 	},
 	password: {
 		type: String,
 		required: [true, "Please enter your password"],
-		min: 6,
-		select: false,
+		minlength: [6, "Password must be at least 6 characters"],
+		select: false
 	},
 	role: {
 		type: String,
-		enum: ["admin", "user"],
-		default: "user",
+		enum: ["admin", "user", "teacher"],
+		default: "user"
 	},
 	subscription: {
 		id: String,
-		status: String,
-	},
-	avatar: {
-		publicId: {
+		status: {
 			type: String,
-			required: true
-		},
-		url: {
-			type: String,
-			required: true
+			enum: ["active", "inactive", "cancelled"] // Example statuses
 		}
 	},
+	profile: {
+		type: String
+	},
 	resetToken: {
-		type: String,
-		required: false
+		type: String
 	},
 	resetTokenExpire: {
-		type: Date,
-		required: false
+		type: Date
 	},
 	playlist: [
 		{
 			course: {
 				type: Schema.Types.ObjectId,
 				ref: "Course"
-			},
-			poster: String,
-		},
-
+			}
+		}
 	]
+}, { timestamps: true });
 
-}, { timestamps: true })
 
 
 userSchema.pre("save", async function (next) {

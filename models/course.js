@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 
-const userSchema=new Schema({
+const courseSchema=new Schema({
 	title: {
 		type: String,
 		required: [true, "Please enter course title"]
@@ -21,18 +21,8 @@ const userSchema=new Schema({
 		video: {
 			type: String,
 		},
-	}
-	],
-	poster: {
-		publicId: {
-			type: String,
-			required: true
-		},
-		url: {
-			type: String,
-			required: true
-		}
-	},
+	}],
+	coverImage: String,
 	views: {
 		type: Number,
 		default: 0
@@ -44,16 +34,13 @@ const userSchema=new Schema({
 	category: {
 		type: String,
 		required: [true, "Please enter course category"]
+
 	},
 	createdBy: {
-		type: String,
-		required: [true, "Please enter course creator name"]
-	},
-	createdOn: {
-		type: Date,
-		default: Date.now,
+		type: Schema.Types.ObjectId,
+		ref: "User"
 	}
-});
+}, { timestamps: true });
 
-const Course=model("Course", userSchema);
+const Course=model("Course", courseSchema);
 export default Course;
