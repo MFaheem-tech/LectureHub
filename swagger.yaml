@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: LECTURE HUB API's
   version: 1.0.0
-  description: This is a sample APIS doc for the LectureHub app consisting of the ADMIN, TEACHER and USER End points
+  description: This is a sample APIS doc for the LectureHub app consisting of the ADMIN, COURSE and USER End points
 
 servers:
   - url: http://localhost:8000/api/v1
@@ -11,10 +11,164 @@ tags:
     description: All endpoints about ADMIN
   - name: USER
     description: All endpoints about USER
-  - name: TEACHER
-    description: All endpoints about INSTRUCTOR
+  - name: COURSE
+    description: All endpoints about COURSE
 
 paths:
+  /admin/register:
+    post:
+      tags:
+        - ADMIN
+      summary: Register a new admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: User Registered Successfully
+        "400":
+          description: Bad request
+
+  /admin/login:
+    post:
+      tags:
+        - ADMIN
+      summary: Admin Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: User Logged In Successfully
+        "400":
+          description: Invalid credentials
+          content:
+            application/json:
+              example:
+                error: Invalid credential
+
+  /admin/profile:
+    get:
+      tags:
+        - ADMIN
+      summary: Get admin profile
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                _id: <admin_id>
+                name: Admin Name
+                email: admin@example.com
+                role: admin
+
+  /admin/dashboard:
+    get:
+      tags:
+        - ADMIN
+      summary: Get dashboard counts
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+
+  /admin/courses:
+    get:
+      tags:
+        - ADMIN
+      summary: Get all courses
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+
+  /admin/specific-course/{id}:
+    get:
+      tags:
+        - ADMIN
+      summary: Get specific course by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: Course ID
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+
+  /admin/students:
+    get:
+      tags:
+        - ADMIN
+      summary: View all students
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                success: true
+
+  /admin/teachers:
+    get:
+      tags:
+        - ADMIN
+      summary: View all teachers
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                success: true
+
+  /admin/specific-user/{id}:
+    get:
+      tags:
+        - ADMIN
+      summary: View specific user by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: User ID
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+
   /users/register:
     post:
       tags:
@@ -260,7 +414,7 @@ paths:
   /course/get-all-courses:
     get:
       tags:
-        - TEACHER
+        - COURSE
       summary: Get all courses
       security:
         - BearerAuth: []
@@ -276,7 +430,7 @@ paths:
   /course/add-course:
     post:
       tags:
-        - TEACHER
+        - COURSE
       summary: Create a new course
       requestBody:
         required: true
@@ -308,7 +462,7 @@ paths:
   /course/course-lectures/{id}:
     get:
       tags:
-        - TEACHER
+        - COURSE
       summary: Get lectures of a course
       parameters:
         - in: path
@@ -331,7 +485,7 @@ paths:
   /course/lecture/{courseId}:
     post:
       tags:
-        - TEACHER
+        - COURSE
       summary: Add a new lecture to a course
       parameters:
         - in: path
@@ -369,7 +523,7 @@ paths:
   /course/remove-course/{courseId}:
     delete:
       tags:
-        - TEACHER
+        - COURSE
       summary: Remove a course
       parameters:
         - in: path
@@ -396,10 +550,35 @@ paths:
                 success: false
                 message: Course not found
 
+  /course/edit-course/{id}:
+    put:
+      tags:
+        - COURSE
+      summary: update a course
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          description: Course ID
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Course updated successfully
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              example:
+                success: false
+                message: Course not found
+
   /course/lecture/{lectureId}/course/{courseId}:
     delete:
       tags:
-        - TEACHER
+        - COURSE
       summary: Remove a lecture from a course
       parameters:
         - in: path

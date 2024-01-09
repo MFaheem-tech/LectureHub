@@ -3,6 +3,30 @@ import User from "../models/user.js";
 import { sendToken } from "../utils/sendToken.js";
 
 export default {
+	signUp: async (req, res) => {
+		try {
+			const { body }=req;
+			const user=await User.findOne({ email: body.email });
+			if (user) {
+				return res.status(409).json({ error: "user already exist" });
+			}
+			body.role="admin";
+			user=await User.create({
+				email,
+				password,
+				profile,
+				role,
+			});
+
+			sendToken(res, user, "User Registered Successfully", 200);
+
+
+		} catch (error) {
+			return res.status(500).json({ error: error.message });
+		}
+	},
+
+
 	login: async (req, res) => {
 		try {
 			const { body }=req;
@@ -19,6 +43,7 @@ export default {
 			return res.status(500).json({ error: error.message });
 		}
 	},
+
 	profile: async (req, res) => {
 		try {
 			const userId=req.user._id;
@@ -84,6 +109,7 @@ export default {
 			res.status(500).json({ success: false, message: error.message });
 		}
 	},
+
 	viewAllTeacher: async (req, res) => {
 		try {
 			const teachers=await User.find({ role: 'teacher' });
@@ -92,6 +118,7 @@ export default {
 			res.status(500).json({ success: false, message: error.message });
 		}
 	},
+
 	viewSingleUser: async (req, res) => {
 		const userId=req.params.id;
 		try {
