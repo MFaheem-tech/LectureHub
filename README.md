@@ -1,85 +1,90 @@
-Sure! Below is an example of a README.md file for your project:
+# LectureHub API
 
-User Authentication Project
-This project provides a user authentication system using Node.js, Express, and MongoDB. It includes various endpoints for user registration, login, password reset, email verification, and profile management.
+This project provides an API server for managing courses, user authentication, user profiles, and more using Node.js, Express, and MongoDB
 
-Features
-User registration with email verification
-User login with JWT authentication
-Forgot password functionality with email verification code
-Reset password with email verification code
-Resend email verification code
-Resend forgot password code
-Update user profile
-Technologies Used
-Node.js
-Express
-MongoDB
-bcryptjs
-cors
-dotenv
-express-async-handler
-joi
-jsonwebtoken
-mongoose
-nodemailer
-Setup
-Clone the repository:
-bash
-Copy code
-git clone https://github.com/yourusername/your-repo.git
-Install dependencies:
-bash
-Copy code
+## Features
+
+- Course Management: Add, delete, update, and retrieve courses.
+- User Authentication: Register, login, update profile, change password, and manage user sessions.
+- Playlist Management: Add courses to the user's playlist and remove them.
+- Image Upload: Upload images to the server using Cloudinary.
+- Swagger Documentation: Explore and interact with the API using Swagger UI.
+
+## Technologies Used
+
+- Node.js
+- Express
+- MongoDB
+- Cloudinary (for image upload)
+
+## Libraries
+
+- bcryptjs
+- cors
+- dotenv
+- express-async-handler
+- jsonwebtoken
+- mongoose
+- multer
+- nodemailer
+- streamifier
+- swagger-jsdoc
+- swagger-ui-express
+- validator
+- yamljs
+
+## Setup
+
+1. Clone the repository:
+
+```
+git clone https://github.com/your_username/LectureHub.git
+```
+
+2. Install dependencies:
+
+```
 cd your-repo
 npm install
-Set up environment variables:
-Create a .env file in the root directory and add the following variables:
+```
 
-makefile
-Copy code
-MONGO_URI=your_mongo_db_uri
-JWT_SECRET=your_jwt_secret
-SENDGRID_API_KEY=your_sendgrid_api_key
-SENDER_EMAIL=your_sender_email
-BASE_URL=your_base_url
-Start the server:
-sql
-Copy code
+3. Set up environment variables:
+
+Create a `.env` file in the root directory and add the following variables:
+
+```
+PORT=8000
+MONGO_URI=mongodb://localhost:27017/lectureHub
+JWT_SECRET=
+SMPT_HOST =
+
+SMPT_PORT =
+
+SMPT_SERVICE =
+
+SMPT_USER =
+SMPT_PASSWORD =
+SMPT_MAIL =
+
+CLOUD_NAME=
+CLOUD_API_KEY=
+CLOUD_API_SECRET=
+```
+
+4. Start the server:
+
+```
 npm start
-API Endpoints
-Signup
-POST /api/signup
-Registers a new user.
-Signin
-POST /api/signin
-Logs in an existing user.
-Forgot Password
-POST /api/forgotpassword
-Sends a reset password link to the user's email.
-Verify Email
-POST /api/verifyemail
-Verifies the user's email using a verification code.
-Resend Verification Code
-POST /api/resendverificationcode
-Resends the verification code to the user's email.
-Resend Forgot Password Code
-POST /api/resendforgotpasswordcode
-Resends the forgot password code to the user's email.
-Verify Code
-POST /api/verifycode
-Verifies a code (either for email verification or password reset).
-Reset Password
-POST /api/resetpassword
-Resets the user's password.
-Profile
-GET /api/profile
-Retrieves the user's profile information.
-PUT /api/profile
-Updates the user's profile information.
-Contributing
+```
+
+## API Documentation
+
+- Explore the API endpoints and test them using Swagger UI. Start the server and visit http://localhost:8000/api-docs/ in your browser
+
+## Contributing
+
 If you'd like to contribute to this project, please follow these steps:
 
-Fork the repository.
-Create a new branch for your feature or bug fix.
-Make your changes and submit a pull request.
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Make your changes and submit a pull request.
