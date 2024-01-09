@@ -15,11 +15,255 @@ tags:
     description: All endpoints about INSTRUCTOR
 
 paths:
+  /users/register:
+    post:
+      tags:
+        - USER
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                profile:
+                  type: string
+                role:
+                  type: string
+      responses:
+        "200":
+          description: User Registered Successfully
+        "400":
+          description: Bad request
+
+  /users/login:
+    post:
+      tags:
+        - USER
+      summary: User Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: User Logged In Successfully
+        "400":
+          description: Bad request
+
+  /users/profile:
+    get:
+      tags:
+        - USER
+      summary: Get user profile
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  name: John Doe
+                  email: john@example.com
+                  profile: Some profile information
+
+  /users/update-profile:
+    put:
+      tags:
+        - USER
+      summary: Update user profile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+      responses:
+        "200":
+          description: Profile updated successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Profile updated successfully
+
+  /users/change-password:
+    put:
+      tags:
+        - USER
+      summary: Change user password
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                oldPassword:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        "200":
+          description: Password changed successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Password changed successfully
+
+  /users/forgot-password:
+    post:
+      tags:
+        - USER
+      summary: Request to reset password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        "200":
+          description: Password reset code sent to your email.
+          content:
+            application/json:
+              example:
+                success: true
+                message: Password reset code sent to your email.
+
+  /users/reset-password:
+    put:
+      tags:
+        - USER
+      summary: Reset user password using code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Password changed successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Password changed successfully
+
+  /users/add-to-playlist/{id}:
+    post:
+      tags:
+        - USER
+      summary: Add a course to the user's playlist
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: Course ID
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Playlist added successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Playlist added successfully
+
+  /users/remove-from-playlist/{id}:
+    delete:
+      tags:
+        - USER
+      summary: Remove a course from the user's playlist
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: Course ID
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Course removed from the playlist successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Course removed from the playlist successfully
+
+  /users/upload-single-image:
+    post:
+      tags:
+        - USER
+      summary: Upload a single image
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Image uploaded successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Image uploaded successfully
+                image: <image_url>
+
   /course/get-all-courses:
     get:
       tags:
         - TEACHER
       summary: Get all courses
+      security:
+        - BearerAuth: []
       responses:
         "200":
           description: Successful response
@@ -28,6 +272,7 @@ paths:
               example:
                 success: true
                 courses: []
+
   /course/add-course:
     post:
       tags:
@@ -42,6 +287,8 @@ paths:
               description: Course Description
               category: Course Category
               createdBy: Course Creator Name
+      security:
+        - BearerAuth: []
       responses:
         "201":
           description: Course created successfully
@@ -70,6 +317,8 @@ paths:
           description: Course ID
           schema:
             type: string
+      security:
+        - BearerAuth: []
       responses:
         "200":
           description: Successful response
@@ -99,6 +348,8 @@ paths:
               title: Lecture Title
               description: Lecture Description
               file: Video URL (optional)
+      security:
+        - BearerAuth: []
       responses:
         "201":
           description: Lecture added successfully
@@ -127,6 +378,8 @@ paths:
           description: Course ID
           schema:
             type: string
+      security:
+        - BearerAuth: []
       responses:
         "200":
           description: Course deleted successfully
@@ -161,6 +414,8 @@ paths:
           description: Lecture ID
           schema:
             type: string
+      security:
+        - BearerAuth: []
       responses:
         "200":
           description: Lecture deleted successfully
@@ -176,3 +431,8 @@ paths:
               example:
                 success: false
                 message: Course not found
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer

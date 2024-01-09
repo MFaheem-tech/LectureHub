@@ -1,17 +1,23 @@
 import User from "../models/user.js";
-import asyncHandler from "express-async-handler";
 import { sendToken } from "../utils/sendToken.js";
 import sendEmail from "../utils/sendMail.js"
 import Course from "../models/course.js";
+import { uploadSingleFile } from "../middlewares/uploader.js"
+import { v2 as cloudinaryV2 } from "cloudinary";
+import streamifier from "streamifier";
 
 
 const code=Math.floor(1000+Math.random()*15*60*1000);
 
 export default {
-	register: asyncHandler(async (req, res) => {
+	register: async (req, res) => {
 		const { name, email, password, profile }=req.body;
 		try {
+			let { role }=req.body;
 
+			if (!role) {
+				role='user';
+			}
 			if (!name||!email||!password) {
 				return res.status(400).json({ message: "Please fill all fields" });
 			}
@@ -19,6 +25,7 @@ export default {
 			if (user) {
 				return res.status(400).json({ message: "User already exists" });
 			}
+
 			user=await User.create({
 				name,
 				email,
@@ -32,9 +39,9 @@ export default {
 
 		}
 
-	}),
+	},
 
-	login: asyncHandler(async (req, res) => {
+	login: async (req, res) => {
 		const { email, password }=req.body;
 		try {
 			if (!email||!password) {
@@ -55,9 +62,9 @@ export default {
 			return res.status(500).json({ error: error.message });
 		}
 
-	}),
+	},
 
-	profile: asyncHandler(async (req, res) => {
+	profile: async (req, res) => {
 		const userId=req.user._id;
 		try {
 			const user=await User.findById(userId).select("-password");
@@ -73,8 +80,9 @@ export default {
 			return res.status(400).json({ error: error.message });
 		}
 
-	}),
-	updateProfile: asyncHandler(async (req, res) => {
+	},
+
+	updateProfile: async (req, res) => {
 		const userId=req.user._id;
 		const { name, email }=req.body;
 		try {
@@ -94,9 +102,9 @@ export default {
 		} catch (error) {
 			return res.status(500).json({ error: error.message });
 		}
-	}),
+	},
 
-	changePassword: asyncHandler(async (req, res) => {
+	changePassword: async (req, res) => {
 		const userId=req.user._id;
 		const { oldPassword, newPassword }=req.body;
 		try {
@@ -119,10 +127,9 @@ export default {
 			return res.status(400).json({ error: error.message });
 
 		}
-	}),
+	},
 
-	// forgot password
-	forgotPassword: asyncHandler(async (req, res) => {
+	forgotPassword: async (req, res) => {
 		const { email }=req.body;
 		if (!email) {
 			return res.status(400).json({ message: "Please provide email" });
@@ -157,8 +164,9 @@ export default {
 		}
 
 
-	}),
-	resetPassword: asyncHandler(async (req, res) => {
+	},
+
+	resetPassword: async (req, res) => {
 		const { code, password }=req.body;
 		try {
 			if (!code||!password) {
@@ -177,8 +185,9 @@ export default {
 		} catch (error) {
 			return res.status(400).json({ error: error.message });
 		}
-	}),
-	addToPlaylist: asyncHandler(async (req, res) => {
+	},
+
+	addToPlaylist: async (req, res) => {
 		const courseId=req.params.id;
 		const userId=req.user._id;
 		try {
@@ -203,9 +212,9 @@ export default {
 		} catch (error) {
 			res.status(500).json({ error: error.message })
 		}
-	}),
+	},
 
-	removeFromPlaylist: asyncHandler(async (req, res) => {
+	removeFromPlaylist: async (req, res) => {
 		const courseId=req.params.id;
 		const userId=req.user._id;
 		try {
@@ -232,44 +241,82 @@ export default {
 		} catch (error) {
 			res.status(500).json({ error: error.message })
 		}
-	}),
-	uploadSingleImageHandler: asyncHandler(async (req, res) => {
+	},
+
+	uploadSingleImageHandler: async (req, res) => {
 		try {
-			await uploadSingleImage(req, res);
-
-			if (!req.file) {
-				throw new Error("No image selected");
-			}
-
-			const imageBuffer=req.file.buffer;
-
-			const uploadStream=cloudinaryV2.uploader.upload_stream(
-				{
-					resource_type: "auto",
-					type: "authenticated",
-					use_filename: true,
-				},
-				(error, result) => {
-					if (error) {
-						console.error(error);
-						throw new Error("Image upload to Cloudinary failed: "+error.message);
-					}
-
-					if (result&&result.secure_url) {
-						const imageUrl=result.secure_url;
-						res.json({
-							success: true,
-							message: "Image uploaded successfully",
-							image: imageUrl,
-						});
-					} else {
-						throw new Error("Image upload to Cloudinary failed: No secure_url in the result object");
-					}
+			uploadSingleFile(req, res, async function (err) {
+				if (err) {
+					return res.status(400).json({
+						success: false,
+						message: "Image upload failed",
+						error: err.message,
+					});
 				}
-			);
 
-			const bufferStream=streamifier.createReadStream(imageBuffer);
-			bufferStream.pipe(uploadStream);
+				try {
+					if (!req.file) {
+						return res.status(400).json({
+							success: false,
+							message: "No image selected",
+						});
+					}
+
+					const imageBuffer=req.file.buffer;
+
+					try {
+						const uploadStream=cloudinaryV2.uploader.upload_stream(
+							{
+								resource_type: "auto",
+								type: "authenticated",
+								use_filename: true,
+							},
+							(error, result) => {
+								if (error) {
+									console.error(error);
+									return res.status(500).json({
+										success: false,
+										message: "Image upload to Cloudinary failed",
+										error: error.message,
+									});
+								}
+
+								if (result&&result.secure_url) {
+									const imageUrl=result.secure_url;
+									return res.json({
+										success: true,
+										message: "Image uploaded successfully",
+										image: imageUrl,
+									});
+								} else {
+									return res.status(500).json({
+										success: false,
+										message: "Image upload to Cloudinary failed",
+										error: "No secure_url in the result object",
+									});
+								}
+							}
+						);
+
+						const bufferStream=streamifier.createReadStream(imageBuffer);
+						bufferStream.pipe(uploadStream);
+					} catch (error) {
+						console.error(error);
+						return res.status(500).json({
+							success: false,
+							message: "Image upload to Cloudinary failed",
+							error: error.message,
+						});
+					}
+				} catch (err) {
+					console.error(err);
+					return res.status(400).json({
+						success: false,
+						message: "Image upload failed",
+						error: err.message,
+					});
+				}
+			});
 		} catch (error) {
 			res.status(500).json({
 				success: false,
@@ -277,7 +324,7 @@ export default {
 				error: error.message,
 			});
 		}
-	}),
+	},
 
 
 };

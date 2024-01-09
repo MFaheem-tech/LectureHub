@@ -14,3 +14,11 @@ export const User=(req, res, next) => {
 	}
 	return res.status(401).json({ error: 'Access denied' });
 };
+export const Teacher=(req, res, next) => {
+	if (
+		req.user.role==='teacher'
+	) {
+		return next();
+	}
+	return res.status(401).json({ error: 'Access denied' });
+};

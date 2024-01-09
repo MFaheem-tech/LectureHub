@@ -4,20 +4,21 @@ import asyncHandler from "express-async-handler";
 
 
 export default {
-	getAllCourses: asyncHandler(async (req, res) => {
+	getAllCourses: async (req, res) => {
 		try {
 			const courses=await Course.find({}).select("-lectures");
 			res.status(200).json({ success: true, courses });
 		} catch (error) {
 			res.status(500).json({ message: error.message })
 		}
-	}),
-	createCourse: asyncHandler(async (req, res) => {
-		const { title, description, category, createdBy }=req.body;
+	},
+	createCourse: async (req, res) => {
+		const createdBy=req.user._id;
+		const { title, description, category }=req.body;
 		const { file }=req;
 
 		try {
-			if (!title||!description||!category||!createdBy) {
+			if (!title||!description||!category) {
 				return res.status(400).json({ success: false, message: "Please fill all the fields" });
 			}
 			const user=await User.findById(createdBy);
@@ -39,10 +40,10 @@ export default {
 		} catch (error) {
 			res.status(500).json({ success: false, message: "Failed to create course", error: error.message });
 		}
-	}),
+	},
 
-	updateCourse: asyncHandler(async (req, res) => {
-		const courseId=req.params.courseId;
+	updateCourse: async (req, res) => {
+		const courseId=req.params.id;
 		const { title, description, category }=req.body;
 
 		try {
@@ -61,26 +62,9 @@ export default {
 		} catch (error) {
 			res.status(500).json({ message: error.message });
 		}
-	}),
+	},
 
-	deleteCourse: asyncHandler(async (req, res) => {
-		const courseId=req.params.courseId;
-
-		try {
-			const course=await Course.findById(courseId);
-			if (!course) {
-				return res.status(404).json({ message: 'Course not found' });
-			}
-
-			await course.remove();
-
-			res.status(200).json({ success: true, message: 'Course deleted successfully' });
-		} catch (error) {
-			res.status(500).json({ message: error.message });
-		}
-	}),
-
-	getCourseLectures: asyncHandler(async (req, res) => {
+	getCourseLectures: async (req, res) => {
 		const courseId=req.params.id;
 		try {
 			const course=await Course.findById(courseId);
@@ -95,9 +79,9 @@ export default {
 		} catch (error) {
 			res.status(500).json({ message: "Error fetching course lectures", error: error.message });
 		}
-	}),
+	},
 
-	addCourseLecture: asyncHandler(async (req, res) => {
+	addCourseLecture: async (req, res) => {
 		const { courseId }=req.params;
 		const { title, description, file }=req.body;
 
@@ -120,9 +104,9 @@ export default {
 		} catch (error) {
 			res.status(500).json({ message: "Failed to add lecture", error: error.message });
 		}
-	}),
+	},
 
-	removeCourse: asyncHandler(async (req, res) => {
+	removeCourse: async (req, res) => {
 		const { courseId }=req.params;
 		try {
 			const deletedCourse=await Course.findByIdAndDelete(courseId);
@@ -134,9 +118,9 @@ export default {
 		} catch (error) {
 			res.status(500).json({ message: "Failed to delete course", error: error.message });
 		}
-	}),
+	},
 
-	deleteLecture: asyncHandler(async (req, res) => {
+	deleteLecture: async (req, res) => {
 		const { lectureId, courseId }=req.params;
 		try {
 			const course=await Course.findById(courseId);
@@ -157,6 +141,6 @@ export default {
 		} catch (error) {
 			res.status(500).json({ message: "Failed to delete lecture", error: error.message });
 		}
-	}),
+	},
 
 }

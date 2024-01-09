@@ -1,5 +1,7 @@
-import multer from 'multer';
+import multer from "multer";
 import { v2 as cloudinaryV2 } from "cloudinary";
+import { config } from "dotenv";
+config();
 
 cloudinaryV2.config({
 	cloud_name: process.env.CLOUD_NAME,
@@ -17,8 +19,6 @@ const uploadSingleFile=multer({
 const uploadMultipleFiles=multer({
 	storage: storage,
 	limits: { fileSize: 2*1024*1024*1024 }, // 2 GB
-}).array('files', 10)
+}).array("files", 10);
 
-
-export { uploadSingleFile, uploadMultipleFiles }
-
+export { uploadSingleFile, uploadMultipleFiles };
